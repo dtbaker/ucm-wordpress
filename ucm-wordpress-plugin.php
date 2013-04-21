@@ -69,6 +69,9 @@ class ucm_wordpress {
                 //$url = add_query_arg('faq_product_id',(int)$args['faq_product_id'], $url);
                 $post_args['faq_product_id'] = (int)$args['faq_product_id'];
             }
+            if(isset($args['group_by_product']) && (int)$args['group_by_product']){
+                $post_args['group_by_product'] = (int)$args['group_by_product'];
+            }
             if(isset($_POST['faq_search'])){
                 $post_args['faq_search'] = $_POST['faq_search'];
             }

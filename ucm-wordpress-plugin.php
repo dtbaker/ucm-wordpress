@@ -69,9 +69,6 @@ class ucm_wordpress {
                 //$url = add_query_arg('faq_product_id',(int)$args['faq_product_id'], $url);
                 $post_args['faq_product_id'] = (int)$args['faq_product_id'];
             }
-            if(isset($args['group_by_product']) && (int)$args['group_by_product']){
-                $post_args['group_by_product'] = (int)$args['group_by_product'];
-            }
             if(isset($_POST['faq_search'])){
                 $post_args['faq_search'] = $_POST['faq_search'];
             }
@@ -87,21 +84,84 @@ class ucm_wordpress {
             ));
             $faq_listing = is_array($data) && isset($data['body']) ? @json_decode($data['body'],true) : array();
             //echo '<h1>'.(isset($args['title'])? $args['title'] : 'FAQ Database').'</h1>';
-            echo '<ul class="faq_listing">';
             if($args['link_to_page_id']){
                 $page_url = get_permalink($args['link_to_page_id']);
             }else{
                 $page_url = get_permalink();
             }
-            foreach($faq_listing as $faq_id => $faq_question){
-                echo '<li class="faq_item">';
-                //echo '<a href="'.htmlspecialchars($faq_question['url']).'" class="faq_link">';
-                echo '<a href="'.add_query_arg('ucm_faq_id',$faq_id,$page_url).'" class="faq_link">';
-                echo htmlspecialchars($faq_question['question']);
-                echo '</a>';
-                echo '</li>';
+            if(isset($args['group_by_product']) && (int)$args['group_by_product']){
+                $faq_by_product = array();
+                foreach($faq_listing as $faq_id => $faq_question){
+                    if(!isset($faq_question['products']) || !is_array($faq_question['products'])){
+                        $faq_question['products'] = array(
+                            0 => 'Other',
+                        );
+                    }
+                    foreach($faq_question['products'] as $product_id=>$product_name){
+                        if(!isset($faq_by_product[$product_id])){
+                            $faq_by_product[$product_id] = array(
+                                'title' => $product_name,
+                                'questions' => array(),
+                            );
+                        }
+                        $faq_by_product[$product_id]['questions'][$faq_id] = $faq_question;
+                    }
+                }
+                if(isset($args['accordion'])){
+                    // output twitter bootstrap accordion from json data:
+                    echo '<div class="accordion" id="accordion_faq">';
+                    foreach($faq_by_product as $product_id => $product_data){
+                        echo '<div class="accordion-group">
+    <div class="accordion-heading">
+      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_faq" href="#collapse_product_'.$product_id.'">
+        '.htmlspecialchars($product_data['title']).'
+      </a>
+    </div>
+    <div id="collapse_product_'.$product_id.'" class="accordion-body collapse'.(count($faq_by_product)==1?' in':'').'">
+      <div class="accordion-inner">';
+                        echo '<ul class="faq_listing">';
+                        foreach($product_data['questions'] as $faq_id => $faq_question){
+                            echo '<li class="faq_item">';
+                            //echo '<a href="'.htmlspecialchars($faq_question['url']).'" class="faq_link">';
+                            echo '<a href="'.add_query_arg('ucm_faq_id',$faq_id,$page_url).'" class="faq_link">';
+                            echo htmlspecialchars($faq_question['question']);
+                            echo '</a>';
+                            echo '</li>';
+                        }
+                        echo '</ul>';
+                        echo '</div>
+    </div>
+  </div>';
+                    }
+                    echo '</div>';
+                }else{
+                    // just normal list
+                    foreach($faq_by_product as $product_id => $product_data){
+                        echo '<h3>'.htmlspecialchars($product_data['title']).'</h3>';
+                        echo '<ul class="faq_listing">';
+                        foreach($product_data['questions'] as $faq_id => $faq_question){
+                            echo '<li class="faq_item">';
+                            //echo '<a href="'.htmlspecialchars($faq_question['url']).'" class="faq_link">';
+                            echo '<a href="'.add_query_arg('ucm_faq_id',$faq_id,$page_url).'" class="faq_link">';
+                            echo htmlspecialchars($faq_question['question']);
+                            echo '</a>';
+                            echo '</li>';
+                        }
+                        echo '</ul>';
+                    }
+                }
+            }else{
+                echo '<ul class="faq_listing">';
+                foreach($faq_listing as $faq_id => $faq_question){
+                    echo '<li class="faq_item">';
+                    //echo '<a href="'.htmlspecialchars($faq_question['url']).'" class="faq_link">';
+                    echo '<a href="'.add_query_arg('ucm_faq_id',$faq_id,$page_url).'" class="faq_link">';
+                    echo htmlspecialchars($faq_question['question']);
+                    echo '</a>';
+                    echo '</li>';
+                }
+                echo '</ul>';
             }
-            echo '</ul>';
         }
         return ob_get_clean();
     }

@@ -44,7 +44,7 @@ class ucm_wordpress {
     function output_faq($faq_item){
         if($faq_item && isset($faq_item['question'])){
             echo '<h1>'.htmlspecialchars($faq_item['question']).'</h1>';
-            echo wpautop(htmlspecialchars($faq_item['answer']));
+            echo wpautop($faq_item['answer']);
         }
     }
     function ucm_faq_shortcode_item_print($args) {

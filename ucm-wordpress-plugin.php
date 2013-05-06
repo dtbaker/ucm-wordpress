@@ -65,7 +65,9 @@ class ucm_wordpress {
             // get a list of our faq articles by doing wp_remote_get
             $url = $this->ucm_url . 'external/m.faq/h.faq_list_json/';
             $post_args = array();
-            if(isset($args['faq_product_id']) && (int)$args['faq_product_id']){
+            if(isset($_REQUEST['faq_product_id']) && (int)$_REQUEST['faq_product_id']>0){
+                $post_args['faq_product_id'] = (int)$_REQUEST['faq_product_id'];
+            }else if(isset($args['faq_product_id']) && (int)$args['faq_product_id']){
                 //$url = add_query_arg('faq_product_id',(int)$args['faq_product_id'], $url);
                 $post_args['faq_product_id'] = (int)$args['faq_product_id'];
             }

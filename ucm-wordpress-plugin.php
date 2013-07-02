@@ -180,9 +180,10 @@ class ucm_wordpress {
         $faq_item = $this->_current_faq_item();
         if($faq_item){
             ?>
-            <!-- canonical url to stop duplicate content? -->
-            <link rel="canonical" href="<?php echo htmlspecialchars($faq_item['url']);?>" />
+            <!-- embedded FAQ item from UCM system, original URL: <?php echo htmlspecialchars($faq_item['url']);?> -->
             <?php
+            /*<!-- canonical url to stop duplicate content? -->
+            <link rel="canonical" href="<?php echo htmlspecialchars($faq_item['url']);?>" />*/
         }
     }
 }

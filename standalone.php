@@ -40,7 +40,7 @@ class ucm_api {
     function ucm_faq_search_print($args) {
         ob_start();
         ?>
-        <form action="" method="post"><input type="text" name="faq_search" value="<?php echo isset($_POST['faq_search'])?esc_attr($_POST['faq_search']):'';?>" /> <input type="submit" name="go" value="<?php echo 'Search FAQ';?>" /></form>
+        <form action="" method="post"><input type="text" name="faq_search" value="<?php echo isset($_POST['faq_search'])?htmlspecialchars($_POST['faq_search']):'';?>" /> <input type="submit" name="go" value="<?php echo 'Search FAQ';?>" /></form>
         <?php
         return ob_get_clean();
     }

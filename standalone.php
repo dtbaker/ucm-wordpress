@@ -28,7 +28,7 @@ class ucm_api {
         // look at the url, check if we're tring to load a faq article or not.
         $faq_id = isset($_GET['ucm_faq_id']) && (int)$_GET['ucm_faq_id']>0 ? (int)$_GET['ucm_faq_id'] : false;
         if($faq_id){
-            $url = $this->ucm_url . 'external/m.faq/h.faq_list_json/?faq_id='.$faq_id;
+            $url = $this->ucm_url . 'external/m.faq/h.faq_list_json/?plight&faq_id='.$faq_id;
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $data = curl_exec($ch);

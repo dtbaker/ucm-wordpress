@@ -5,7 +5,7 @@ Plugin Name: UCM WordPress Integration
 Plugin URI: http://ultimateclientmanager.com/
 Description: Provides some options for integrating with your UCM installation from WordPress
 Author: dtbaker
-Version: 1.0.1
+Version: 1.0.2
 Author URI: http://dtbaker.net
 Copyright (C) 2013 dtbaker
 */
@@ -27,7 +27,7 @@ class ucm_wordpress {
         $faq_id = isset($_GET['ucm_faq_id']) && (int)$_GET['ucm_faq_id']>0 ? (int)$_GET['ucm_faq_id'] : false;
         if($faq_id){
             // pull our faq article in using wp_remote_get
-            $url = $this->ucm_url . 'external/m.faq/h.faq_list_json/?faq_id='.$faq_id;
+            $url = $this->ucm_url . 'external/m.faq/h.faq_list_json/?faq_id='.$faq_id.'&plight';
             $data = (wp_remote_get($url));
             $faq_item = is_array($data) && isset($data['body']) ? @json_decode($data['body'],true) : array();
             return $faq_item;
@@ -74,6 +74,7 @@ class ucm_wordpress {
             if(isset($_POST['faq_search'])){
                 $post_args['faq_search'] = $_POST['faq_search'];
             }
+            $post_args['plight'] = 1;
             $data = wp_remote_post($url,array(
             'method' => 'POST',
             'timeout' => 10,

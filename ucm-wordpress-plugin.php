@@ -21,10 +21,58 @@ class ucm_wordpress {
         add_shortcode( 'ucm_faq', array($this, 'ucm_faq_shortcode_print') );
         add_shortcode( 'ucm_faq_item', array($this, 'ucm_faq_shortcode_item_print') );
         add_shortcode( 'ucm_faq_search', array($this, 'ucm_faq_shortcode_search_print') );
+
+        add_filter('query_vars', array($this, '_add_query_var'));
+        add_action('init', array($this, '_do_rewrite'));
+
+
+    }
+    public function _add_query_var($public_query_vars){
+        $public_query_vars[] = 'ucm_faq_id';
+        return $public_query_vars;
+    }
+    public function _do_rewrite() {
+
+//        add_rewrite_tag('%ucm_faq%','([^&]+)');
+//        add_rewrite_rule('support/faq-knowledge-base/faq_item/faq-([^/]*)$','index.php?pagename=faq-item&ucm_faq=$matches[1]','top');
+
+        global $wp,$wp_rewrite;
+
+        $rule = '.*faq-item/(\d+)/.*';
+//        if(!isset($wp_rewrite->rules[$rule]) && !isset($wp_rewrite->extra_rules_top[$rule])){
+    //        $wp->add_query_var('ucm_faq_id');
+    //        echo get_permalink(get_queried_object_id());exit;
+    //$page = get_page_by_path('faq-item');print_r($page);exit;
+//            print_r($wp_rewrite->rules);
+//            print_r($wp_rewrite->extra_rules_top);
+            $args = array(
+                'name' => 'faq-item',
+            'post_type' => 'page'
+            );
+            $posts_from_slug = get_posts( $args );
+            // echo fetched content
+            //print_r($posts_from_slug[0]);exit;
+            add_rewrite_rule($rule, 'index.php?page_id='.($posts_from_slug[0]->ID).'&ucm_faq_id=$matches[1]','top');
+            //$wp_rewrite->add_rule('.*faq-item/faq-(\d+)/', 'index.php?ucm_faq_id=$matches[1]&name=faq-item', 'top');
+
+            // Once you get working, remove this next line
+//            $wp_rewrite->flush_rules(false);
+//            echo "Added rule!";exit;
+//        }
+
+        if(isset($_REQUEST['dtbakerdebug'])){
+            global $wp_rewrite,$wp;
+            print_r($wp_rewrite);
+            print_r($wp);
+        }
     }
     private function _current_faq_item(){
         // look at the url, check if we're tring to load a faq article or not.
-        $faq_id = isset($_GET['ucm_faq_id']) && (int)$_GET['ucm_faq_id']>0 ? (int)$_GET['ucm_faq_id'] : false;
+        $faq_id = get_query_var('ucm_faq_id'); //isset($_GET['ucm_faq_id']) && (int)$_GET['ucm_faq_id']>0 ? (int)$_GET['ucm_faq_id'] : false;
+//        $faq_id = isset($_GET['ucm_faq_id']) && (int)$_GET['ucm_faq_id']>0 ? (int)$_GET['ucm_faq_id'] : false;
+//        global $wp;
+//        print_r($wp);
+//        echo $faq_id;exit;
         if($faq_id){
             // pull our faq article in using wp_remote_get
             $url = $this->ucm_url . 'external/m.faq/h.faq_list_json/?faq_id='.$faq_id.'&plight';
@@ -92,6 +140,7 @@ class ucm_wordpress {
             }else{
                 $page_url = get_permalink();
             }
+            $page_url = rtrim($page_url,'/');
             if(isset($args['group_by_product']) && (int)$args['group_by_product']){
                 $faq_by_product = array();
                 foreach($faq_listing as $faq_id => $faq_question){
@@ -126,7 +175,8 @@ class ucm_wordpress {
                         foreach($product_data['questions'] as $faq_id => $faq_question){
                             echo '<li class="faq_item">';
                             //echo '<a href="'.htmlspecialchars($faq_question['url']).'" class="faq_link">';
-                            echo '<a href="'.add_query_arg('ucm_faq_id',$faq_id,$page_url).'" class="faq_link">';
+                            //echo '<a href="'.add_query_arg('ucm_faq_id',$faq_id,$page_url).'" class="faq_link">';
+                            echo '<a href="'.$page_url.'/'.$faq_id.'/'.sanitize_title($faq_question['question']).'" class="faq_link">';
                             echo htmlspecialchars($faq_question['question']);
                             echo '</a>';
                             echo '</li>';
@@ -145,7 +195,8 @@ class ucm_wordpress {
                         foreach($product_data['questions'] as $faq_id => $faq_question){
                             echo '<li class="faq_item">';
                             //echo '<a href="'.htmlspecialchars($faq_question['url']).'" class="faq_link">';
-                            echo '<a href="'.add_query_arg('ucm_faq_id',$faq_id,$page_url).'" class="faq_link">';
+                            //echo '<a href="'.add_query_arg('ucm_faq_id',$faq_id,$page_url).'" class="faq_link">';
+                            echo '<a href="'.$page_url.'/'.$faq_id.'/'.sanitize_title($faq_question['question']).'" class="faq_link">';
                             echo htmlspecialchars($faq_question['question']);
                             echo '</a>';
                             echo '</li>';
@@ -158,7 +209,8 @@ class ucm_wordpress {
                 foreach($faq_listing as $faq_id => $faq_question){
                     echo '<li class="faq_item">';
                     //echo '<a href="'.htmlspecialchars($faq_question['url']).'" class="faq_link">';
-                    echo '<a href="'.add_query_arg('ucm_faq_id',$faq_id,$page_url).'" class="faq_link">';
+//                    echo '<a href="'.add_query_arg('ucm_faq_id',$faq_id,$page_url).'" class="faq_link">';
+                    echo '<a href="'.$page_url.'/'.$faq_id.'/'.sanitize_title($faq_question['question']).'" class="faq_link">';
                     echo htmlspecialchars($faq_question['question']);
                     echo '</a>';
                     echo '</li>';

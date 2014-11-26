@@ -66,6 +66,7 @@ class ucm_wordpress {
             print_r($wp);
         }
     }
+	private $_item_cache = array();
     private function _current_faq_item(){
         // look at the url, check if we're tring to load a faq article or not.
         $faq_id = get_query_var('ucm_faq_id'); //isset($_GET['ucm_faq_id']) && (int)$_GET['ucm_faq_id']>0 ? (int)$_GET['ucm_faq_id'] : false;
@@ -74,11 +75,14 @@ class ucm_wordpress {
 //        print_r($wp);
 //        echo $faq_id;exit;
         if($faq_id){
+	        if(isset($this->_item_cache[$faq_id])){
+		        return $this->_item_cache[$faq_id];
+	        }
             // pull our faq article in using wp_remote_get
             $url = $this->ucm_url . 'external/m.faq/h.faq_list_json/?faq_id='.$faq_id.'&plight';
             $data = (wp_remote_get($url));
-            $faq_item = is_array($data) && isset($data['body']) ? @json_decode($data['body'],true) : array();
-            return $faq_item;
+            $this->_item_cache[$faq_id] = is_array($data) && isset($data['body']) ? @json_decode($data['body'],true) : array();
+            return $this->_item_cache[$faq_id];
         }
         return false;
     }
